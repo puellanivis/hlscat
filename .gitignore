@@ -1,0 +1,8 @@
+hlscat
+bin
+*.ts
+*.mp3
+*.aac
+*.mp4
+*.mpegts
+*.m3u8
