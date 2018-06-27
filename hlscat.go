@@ -358,7 +358,10 @@ func HLSReader(ctx context.Context, filename string, discontinuity func()) (io.R
 }
 
 func main() {
-	finish, ctx := util.Init("hlscat", 0, 1)
+	ctx, finish, err := util.Init("hlscat", 0, 1)
+	if err != nil {
+		glog.Fatal(err)
+	}
 	defer finish()
 
 	ctx = httpfiles.WithUserAgent(ctx, Flags.UserAgent)
