@@ -213,7 +213,7 @@ func DVBService(desc *dvb.ServiceDescriptor) {
 			glog.Infof("dvb.sdt: %v", sdt)
 
 		case glog.V(2) == true:
-			glog.Info("DVB Service Description: %v", desc)
+			glog.Infof("DVB Service Description: %v", desc)
 		}
 	}
 }
@@ -358,10 +358,7 @@ func HLSReader(ctx context.Context, filename string, discontinuity func()) (io.R
 }
 
 func main() {
-	ctx, finish, err := util.Init("hlscat", 0, 1)
-	if err != nil {
-		glog.Fatal(err)
-	}
+	ctx, finish := util.Init("hlscat", 0, 1)
 	defer finish()
 
 	ctx = httpfiles.WithUserAgent(ctx, Flags.UserAgent)
@@ -371,7 +368,7 @@ func main() {
 
 	args := flag.Args()
 	if len(args) < 1 {
-		util.Statusln(flag.Usage)
+		flag.Usage()
 		util.Exit(1)
 	}
 

@@ -1,5 +1,6 @@
 hlscat
 bin
+go.sum
 *.ts
 *.mp3
 *.aac
