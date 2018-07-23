@@ -33,6 +33,7 @@ import (
 	"github.com/puellanivis/breton/lib/util"
 )
 
+// Flags contains all of the flags defined for the application.
 var Flags struct {
 	Output    string `flag:",short=o"            desc:"Specifies which file to write the output to"`
 	UserAgent string `flag:",default=hlscat/1.0" desc:"Which User-Agent string to use"`
@@ -94,11 +95,11 @@ func openOutput(ctx context.Context, filename string) (io.WriteCloser, func(), e
 		pktSize := Flags.PacketSize
 
 		q := uri.Query()
-		if pkt_size := q.Get(socketfiles.FieldPacketSize); pkt_size != "" {
+		if urlPktSize := q.Get(socketfiles.FieldPacketSize); urlPktSize != "" {
 			// If the output URL has a pkt_size value, override the default.
-			sz, err := strconv.ParseInt(pkt_size, 0, strconv.IntSize)
+			sz, err := strconv.ParseInt(urlPktSize, 0, strconv.IntSize)
 			if err != nil {
-				return nil, nil, errors.Errorf("bad %s value: %s: %+v", socketfiles.FieldPacketSize, pkt_size, err)
+				return nil, nil, errors.Errorf("bad %s value: %s: %+v", socketfiles.FieldPacketSize, urlPktSize, err)
 			}
 
 			pktSize = int(sz)
@@ -191,6 +192,7 @@ func openOutput(ctx context.Context, filename string) (io.WriteCloser, func(), e
 	return out, discontinuity, nil
 }
 
+// DVBService sets the dvb.ServiceDescriptor to be used by the muxer.
 func DVBService(desc *dvb.ServiceDescriptor) {
 	if mux != nil {
 		service := &dvb.Service{
@@ -218,6 +220,7 @@ func DVBService(desc *dvb.ServiceDescriptor) {
 	}
 }
 
+// HLSReader returns an io.Reader from the given filename using the m3u8 library that reads an HLS stream.
 func HLSReader(ctx context.Context, filename string, discontinuity func()) (io.Reader, error) {
 	f, err := files.Open(ctx, filename)
 	if err != nil {
