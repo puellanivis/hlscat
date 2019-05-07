@@ -30,7 +30,13 @@ import (
 	"github.com/puellanivis/breton/lib/mpeg/ts"
 	"github.com/puellanivis/breton/lib/mpeg/ts/dvb"
 	"github.com/puellanivis/breton/lib/mpeg/ts/psi"
-	"github.com/puellanivis/breton/lib/util"
+	"github.com/puellanivis/breton/lib/os/process"
+)
+
+// Version information ready for build-time injection.
+var (
+	Version    = "0.1.0"
+	Buildstamp = "dev"
 )
 
 // Flags contains all of the flags defined for the application.
@@ -361,7 +367,7 @@ func HLSReader(ctx context.Context, filename string, discontinuity func()) (io.R
 }
 
 func main() {
-	ctx, finish := util.Init("hlscat", 0, 1)
+	ctx, finish := process.Init("hlscat", Version, Buildstamp)
 	defer finish()
 
 	ctx = httpfiles.WithUserAgent(ctx, Flags.UserAgent)
@@ -372,7 +378,7 @@ func main() {
 	args := flag.Args()
 	if len(args) < 1 {
 		flag.Usage()
-		util.Exit(1)
+		process.Exit(1)
 	}
 
 	if Flags.Quiet {
@@ -402,7 +408,7 @@ func main() {
 			}
 
 			msg := fmt.Sprintf("metrics available at: http://%s/metrics", l.Addr())
-			util.Statusln(msg)
+			fmt.Fprintln(os.Stderr, msg)
 			glog.Info(msg)
 
 			http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
@@ -413,7 +419,12 @@ func main() {
 
 			go func() {
 				<-ctx.Done()
-				srv.Shutdown(util.Context())
+
+				ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+
+				srv.Shutdown(ctx)
+
 				l.Close()
 			}()
 
